@@ -297,13 +297,19 @@ def enriched_motifs(
 # --- Motif instance finding ---
 
 # Semantic role names for key size-3 motif types.
-# Keys are igraph isoclass IDs; values are ordered role lists matching the
-# canonical node ordering returned by get_subisomorphisms_vf2().
+# Keys are igraph isoclass IDs; values are role lists in the node order of the
+# pattern graph ig.Graph.Isoclass(n=3, cls=isoclass, directed=True), which is
+# the order get_subisomorphisms_vf2() maps from. Pattern edges on igraph 1.0.0:
+#   021U fan-in   2->0, 1->0         node 0 receives both edges
+#   021C chain    2->0, 0->1         the path is 2 -> 0 -> 1
+#   021D fan-out  2->1, 2->0         node 2 sends both edges
+#   030T FFL      2->1, 2->0, 1->0   node 2 sends both, node 0 receives both
+# tests/test_triad_identities.py checks these orders against edge directions.
 MOTIF_ROLES: dict[int, list[str]] = {
-    2:  ["source_a", "source_b", "target"],       # 021U fan-in
-    4:  ["source", "mediator", "target"],          # 021C chain
-    6:  ["source", "target_a", "target_b"],        # 021D fan-out
-    7:  ["regulator", "mediator", "target"],        # 030T feedforward loop
+    2:  ["target", "source_a", "source_b"],        # 021U fan-in
+    4:  ["mediator", "target", "source"],          # 021C chain
+    6:  ["target_a", "target_b", "source"],        # 021D fan-out
+    7:  ["target", "mediator", "regulator"],       # 030T feedforward loop
     11: ["node_a", "node_b", "node_c"],            # 030C cycle
     15: ["node_a", "node_b", "node_c"],            # 300 complete
 }
